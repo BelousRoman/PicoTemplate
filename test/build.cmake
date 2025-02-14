@@ -29,10 +29,6 @@ target_link_libraries(${PROJECT_NAME}
 if (PICO_CYW43_SUPPORTED)
     target_link_libraries(${PROJECT_NAME} 
     pico_cyw43_arch_none
-    #pico_cyw43_arch_lwip_threadsafe_background
-    #pico_stdio_usb
-    #pico_lwip_mbedtls
-    #pico_mbedtls
 )
 endif()
 
