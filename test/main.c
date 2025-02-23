@@ -11,9 +11,24 @@
 
 #include "pico/bootrom.h"
 
+#ifdef PICO_FREERTOS_BUILD
+#include "FreeRTOS.h"
+#include "task.h"
+#endif // PICO_FREERTOS_BUILD
+
+#ifndef TEMPLATE_STR
+#define TEMPLATE_STR "No template string provided"
+#endif // TEMPLATE_STR
+
+#ifdef PICO_FREERTOS_BUILD
+#ifndef BTN_DELAY_MS
+#define BTN_DELAY_MS 50
+#endif // BTN_DELAY_MS
+#endif // PICO_FREERTOS_BUILD
+
 #ifndef LED_DELAY_MS
-#define LED_DELAY_MS 100
-#endif
+#define LED_DELAY_MS 500
+#endif // LED_DELAY_MS
 
 // Perform initialisation
 int pico_led_init(void) {
@@ -76,19 +91,72 @@ bool __no_inline_not_in_flash_func(read_bootsel)()
     return button_state;
 }
 
+#ifdef PICO_FREERTOS_BUILD
+
+void btn_task(void *params)
+{
+	printf("%s\n", __func__);
+	
+	while (read_bootsel() != true)
+    		vTaskDelay(LED_DELAY_MS);
+
+	puts("End of Program");
+    	reset_usb_boot(0, 0);
+}
+
+void led_task(void *params)
+{
+	printf("%s\n", __func__);
+
+	int rc = pico_led_init();
+    	hard_assert(rc == PICO_OK);
+    	while (1)
+    	{
+        	pico_set_led(true);
+        	vTaskDelay(LED_DELAY_MS);
+		pico_set_led(false);
+		vTaskDelay(LED_DELAY_MS);
+    	}
+}
+
+#endif // PICO_FREERTOS_BUILD
+
 int main()
 {
-    int rc = pico_led_init();
-    hard_assert(rc == PICO_OK);
-    while (read_bootsel() != true)
-    {
-        pico_set_led(true);
-        sleep_ms(LED_DELAY_MS);
-        pico_set_led(false);
-        sleep_ms(LED_DELAY_MS);
-    }
-    
-    reset_usb_boot(0, 0);
-    return 0;
+	stdio_init_all();
+
+	puts(TEMPLATE_STR);
+
+#ifdef PICO_FREERTOS_BUILD
+
+	TaskHandle_t task[2];
+	
+	xTaskCreate(btn_task, "Bootsel Button", 5000, NULL, (tskIDLE_PRIORITY+1), &task[0]);
+	xTaskCreate(led_task, "LED", 5000, NULL, (tskIDLE_PRIORITY+1), &task[1]);
+	
+	/* Start the tasks and timer running. */
+	vTaskStartScheduler();
+	
+	reset_usb_boot(0, 0);
+	return 0;
+
+#else
+	
+	int rc = pico_led_init();
+	hard_assert(rc == PICO_OK);
+	while (read_bootsel() != true)
+	{
+		pico_set_led(true);
+		sleep_ms(LED_DELAY_MS);
+		pico_set_led(false);
+		sleep_ms(LED_DELAY_MS);
+	}
+	
+	puts("End of Program");
+
+	reset_usb_boot(0, 0);
+	return 0;
+	
+#endif // PICO_FREERTOS_BUILD
 }
 
