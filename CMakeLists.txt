@@ -8,9 +8,6 @@ set(PROJECT_DIR "${CMAKE_SOURCE_DIR}/test")
 set(STDIO_UART 1)
 set(STDIO_USB 1)
 
-# Build with FreeRTOS if not 'false'
-set(INCLUDE_FREERTOS true)
-
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -19,6 +16,17 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(PICO_SDK_PATH "${CMAKE_SOURCE_DIR}/pico-sdk")
 set(PICO_PLATFORM rp2040 CACHE STRING "On-Board Chip")
 set(PICO_BOARD pico_w CACHE STRING "Board Type")
+
+set(FREERTOS_KERNEL_PATH "${CMAKE_SOURCE_DIR}/lib/FreeRTOS-Kernel")
+set(PICO_PORT_PATH "${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040")
+set(FreeRTOS_FAT_PATH "${CMAKE_SOURCE_DIR}/lib/FreeRTOS-FAT")
+set(FreeRTOS_FAT_PORT_PATH "${CMAKE_SOURCE_DIR}/lib/FreeRTOS-FAT-Port//src/FreeRTOS+FAT+CLI")
+
+set(FREERTOS_CFG_PATH ${PROJECT_DIR}/config/FreeRTOS-Kernel)
+set(FREERTOS_FAT_CFG_PATH ${PROJECT_DIR}/config/FreeRTOS-FAT)
+
+set(FREERTOS_LIB FreeRTOS-Kernel-Heap4)
+set(FREERTOS_FAT_LIB FreeRTOS_FAT)
 
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
@@ -34,29 +42,12 @@ endif()
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
-# Get FreeRTOS-Kernel sources if variable INCLUDE_FREERTOS is not 'false'
-if (NOT ${INCLUDE_FREERTOS} MATCHES false)
-	FetchContent_Declare(FreeRTOS_Kernel
-	  	GIT_REPOSITORY https://github.com/raspberrypi/FreeRTOS-Kernel.git
-	  	GIT_TAG        main # Note: Best practice to use specific git-hash or tagged version
-	)
+include(${PICO_PORT_PATH}/FreeRTOS_Kernel_import.cmake)
 
-	message("Fetching FreeRTOS-Kernel")
-	FetchContent_Populate(FreeRTOS_Kernel)
+include(FreeRTOS-Fat-Port.cmake)
 
-	FetchContent_GetProperties(FreeRTOS_Kernel SOURCE_DIR FREERTOS_KERNEL_PATH)
-	set(FREERTOS_CFG_PATH ${PROJECT_DIR}/config/FreeRTOS-Kernel)
-	set(PICO_PORT_PATH ${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040 CACHE STRING "FreeRTOS RP2040 Port Path" FORCE)
-	set(FREERTOS_LIB FreeRTOS-Kernel-Heap4)
-	
-	include(${PICO_PORT_PATH}/FreeRTOS_Kernel_import.cmake)
-	
-	message("Building Pico Project ${PROJECT_NAME} with FreeRTOS using ${FREERTOS_LIB} lib")
-else()
-	message("Building Pico Project ${PROJECT_NAME}") 
-endif()
+message("Building Pico Project ${PROJECT_NAME} with FreeRTOS using ${FREERTOS_LIB} and ${FREERTOS_FAT_LIB} libs")
 
 project(${PROJECT_NAME} C CXX ASM)
 
 include(${PROJECT_DIR}/build.cmake)
-

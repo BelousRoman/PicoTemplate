@@ -72,7 +72,7 @@
 /* Memory allocation related definitions. *************************************/
 /******************************************************************************/
 
-#define configSUPPORT_STATIC_ALLOCATION              0 // 1
+#define configSUPPORT_STATIC_ALLOCATION              1 // 1
 #define configSUPPORT_DYNAMIC_ALLOCATION             1
 #define configTOTAL_HEAP_SIZE                        (128*1024) // 4096U
 #define configAPPLICATION_ALLOCATED_HEAP             0 // 1
@@ -104,7 +104,7 @@
 #define configGENERATE_RUN_TIME_STATS           0
 #define configUSE_TRACE_FACILITY                0
 #define configUSE_STATS_FORMATTING_FUNCTIONS    0
-#define configKERNEL_PROVIDED_STATIC_MEMORY     1
+#define configKERNEL_PROVIDED_STATIC_MEMORY     0 // 1
 
 // #if FREE_RTOS_KERNEL_SMP // set by the RP2040 SMP port of FreeRTOS
 // /* SMP port only */
@@ -151,6 +151,13 @@
 #define configASSERT(x)                        assert(x) 
 
 #define INCLUDE_xSemaphoreGetMutexHolder       1
+
+#ifndef portINLINE
+#define portINLINE __inline
+#endif
+
+#define configNUM_THREAD_LOCAL_STORAGE_POINTERS 5
+
 // #define INCLUDE_vApplicationPassiveIdleHook       1
 
 // void vApplicationIdleHook( void );

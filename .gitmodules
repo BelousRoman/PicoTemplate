@@ -1,3 +1,14 @@
 [submodule "pico-sdk"]
 	path = pico-sdk
 	url = git@github.com:raspberrypi/pico-sdk.git
+[submodule "lib/FreeRTOS-Kernel"]
+	path = lib/FreeRTOS-Kernel
+	url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git
+	branch = V11.1.0
+[submodule "lib/FreeRTOS-FAT"]
+	path = lib/FreeRTOS-FAT
+	url = https://github.com/FreeRTOS/Lab-Project-FreeRTOS-FAT.git
+[submodule "lib/FreeRTOS-FAT-Port"]
+	path = lib/FreeRTOS-FAT-Port
+	url = https://github.com/carlk3/FreeRTOS-FAT-CLI-for-RPi-Pico.git
+	branch = v2.12.0

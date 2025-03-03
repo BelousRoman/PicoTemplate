@@ -3,24 +3,19 @@ cmake_minimum_required(VERSION 3.13)
 # Add headers and sources
 add_executable(${PROJECT_NAME}
 	${PROJECT_DIR}/main.c
+	${PROJECT_DIR}/hw_config.c
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
 	${CMAKE_CURRENT_LIST_DIR}
-	
+	${FREERTOS_CFG_PATH}
+	${FREERTOS_FAT_CFG_PATH}
 )
 
-# Include config files for FreeRTOS
-if (NOT ${INCLUDE_FREERTOS} MATCHES false)
+if (PICO_CYW43_SUPPORTED)
 	target_include_directories(${PROJECT_NAME} PRIVATE
-	${PROJECT_DIR}/config/FreeRTOS-Kernel
+		${PROJECT_DIR}/config/lwip
 	)
-	
-	if (PICO_CYW43_SUPPORTED)
-		target_include_directories(${PROJECT_NAME} PRIVATE
-			${PROJECT_DIR}/config/lwip
-		)
-	endif()
 endif()
 
 # Set program name and version for picotool
@@ -35,33 +30,18 @@ pico_enable_stdio_usb(${PROJECT_NAME} ${STDIO_USB})
 target_link_libraries(${PROJECT_NAME}
 	pico_stdlib
 	hardware_adc
+	pico_time
+	${FREERTOS_LIB}
+	${FREERTOS_FAT_LIB}
 )
 
 # Link library to project with 'W' postfix
 if (PICO_CYW43_SUPPORTED)
-	if (NOT ${INCLUDE_FREERTOS} MATCHES false)
-		target_link_libraries(${PROJECT_NAME} 
-			pico_cyw43_arch_lwip_sys_freertos
-		)
-	else ()
-		target_link_libraries(${PROJECT_NAME} 
-			pico_cyw43_arch_none
-		)
-	endif()
-    
+	target_link_libraries(${PROJECT_NAME} 
+		pico_cyw43_arch_lwip_sys_freertos
+	)
 endif()
 
-if (NOT ${INCLUDE_FREERTOS} MATCHES false)
-	# Link FreeRTOS library
-	target_link_libraries(${PROJECT_NAME}
-	${FREERTOS_LIB}
-	)
-	
-	# Add define-macros
-	add_compile_definitions(TEMPLATE_STR="Raspberry Pi Pico Template Project with FreeRTOS")
-	add_compile_definitions(PICO_FREERTOS_BUILD)
-else()
-	add_compile_definitions(TEMPLATE_STR="Raspberry Pi Pico Template Project")
-endif()
+add_compile_definitions(TEMPLATE_STR="Raspberry Pi Pico Template Project with FreeRTOS FAT")
 
 pico_add_extra_outputs(${PROJECT_NAME})
