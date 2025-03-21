@@ -18,7 +18,7 @@
 #include "ff_sddisk.h"
 #include "ff_stdio.h"
 #include "ff_utils.h"
-//
+
 #include "hw_config.h"
 
 #ifndef TEMPLATE_STR
@@ -31,11 +31,7 @@
 
 void sd_task(void *params)
 {
-	printf("%s: Hello, world!\n", pcTaskGetName(NULL));
-
-    // gpio_init(4);
-    // gpio_set_dir(4, GPIO_OUT);
-    // gpio_put(4, 1);
+	printf("%s\n", pcTaskGetName(NULL));
 
     FF_Disk_t *pxDisk = NULL;
 
