@@ -10,5 +10,5 @@
 	url = https://github.com/FreeRTOS/Lab-Project-FreeRTOS-FAT.git
 [submodule "lib/FreeRTOS-FAT-Port"]
 	path = lib/FreeRTOS-FAT-Port
-	url = https://github.com/carlk3/FreeRTOS-FAT-CLI-for-RPi-Pico.git
-	branch = v2.12.0
+	url = git@github.com:BelousRoman/FreeRTOS-FAT-CLI-for-RPi-Pico.git
+	branch = master
