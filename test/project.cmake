@@ -14,7 +14,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 if (PICO_CYW43_SUPPORTED)
 	target_include_directories(${PROJECT_NAME} PRIVATE
-		${PROJECT_DIR}/config/lwip
+		${LWIP_CFG_PATH}
 	)
 endif()
 
@@ -35,7 +35,7 @@ target_link_libraries(${PROJECT_NAME}
 	${FREERTOS_FAT_LIB}
 )
 
-# Link library to project with 'W' postfix
+# Link library to project for board with 'W' postfix
 if (PICO_CYW43_SUPPORTED)
 	target_link_libraries(${PROJECT_NAME} 
 		pico_cyw43_arch_lwip_sys_freertos
