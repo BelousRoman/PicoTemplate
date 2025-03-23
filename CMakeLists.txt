@@ -83,4 +83,5 @@ endif()
 
 project(${PROJECT_NAME} C CXX ASM)
 
-include(${PROJECT_DIR}/project.cmake)
+# include(${PROJECT_DIR}/project.cmake)
+add_subdirectory(${PROJECT_DIR})

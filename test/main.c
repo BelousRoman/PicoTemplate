@@ -134,7 +134,7 @@ void sd_task(void *params)
 int main()
 {
 	stdio_init_all();
-
+    
 	puts(TEMPLATE_STR);
 	xTaskCreate(sd_task, "SD", 5000, NULL, (tskIDLE_PRIORITY+1), NULL);
 	

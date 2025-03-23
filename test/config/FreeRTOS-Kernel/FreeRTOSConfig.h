@@ -54,7 +54,7 @@
 #define configTASK_NOTIFICATION_ARRAY_ENTRIES      1U
 #define configQUEUE_REGISTRY_SIZE                  10U // 0U
 #define configENABLE_BACKWARD_COMPATIBILITY        1
-#define configNUM_THREAD_LOCAL_STORAGE_POINTERS    0
+#define configNUM_THREAD_LOCAL_STORAGE_POINTERS    5 // 0
 #define configSTACK_DEPTH_TYPE                     uint32_t // size_t
 #define configMESSAGE_BUFFER_LENGTH_TYPE           size_t
 #define configUSE_NEWLIB_REENTRANT                 0
@@ -155,8 +155,6 @@
 #ifndef portINLINE
 #define portINLINE __inline
 #endif
-
-#define configNUM_THREAD_LOCAL_STORAGE_POINTERS 5
 
 // #define INCLUDE_vApplicationPassiveIdleHook       1
 

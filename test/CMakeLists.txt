@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.13)
 
+if (NOT DEFINED PROJECT_NAME)
+	set(PROJECT_NAME Test)
+endif()
+
 # Add headers and sources
 add_executable(${PROJECT_NAME}
 	${PROJECT_DIR}/main.c
