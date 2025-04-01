@@ -1,12 +1,28 @@
 cmake_minimum_required(VERSION 3.13)
 
+# == DO NOT EDIT THE FOLLOWING LINES for the Raspberry Pi Pico VS Code Extension to work ==
+if(WIN32)
+    set(USERHOME $ENV{USERPROFILE})
+else()
+    set(USERHOME $ENV{HOME})
+endif()
+set(sdkVersion 2.0.0)
+set(toolchainVersion 13_2_Rel1)
+set(picotoolVersion 2.0.0)
+set(picoVscode ${USERHOME}/.pico-sdk/cmake/pico-vscode.cmake)
+if (EXISTS ${picoVscode})
+    include(${picoVscode})
+endif()
+# ====================================================================================
+
 # Set program name and it's location
-set(PROJECT_NAME Test)
+set(PROJECT_NAME TestTemplate)
 set(PROJECT_DIR "${CMAKE_SOURCE_DIR}/test")
+set(PROJECT_VER "0.1")
 
 # Build with libraries if not 'false'
-set(INCLUDE_FREERTOS true)
-set(INCLUDE_FAT true)
+set(INCLUDE_FREERTOS false)
+set(INCLUDE_FAT false)
 
 # Enable/disable output over UART/USB (1 - enables, 0 - disables)
 set(STDIO_UART 1)
@@ -16,10 +32,13 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Set variables for SDK
-set(PICO_SDK_PATH "${CMAKE_SOURCE_DIR}/pico-sdk")
-set(PICO_PLATFORM rp2040 CACHE STRING "On-Board Chip")
-set(PICO_BOARD pico_w CACHE STRING "Board Type")
+# Set SDK variables, if using VS Code Extension - ignore sdk path and platform
+if (NOT EXISTS ${picoVscode})
+	set(PICO_SDK_PATH "${CMAKE_SOURCE_DIR}/pico-sdk")
+	set(PICO_PLATFORM rp2040 CACHE STRING "On-Board Chip")
+endif()
+# Basic options: pico, pico_w, pico_2, pico_2w
+set(PICO_BOARD pico_w CACHE STRING "Board type")
 
 set(PICO_PORT_PATH "portable/ThirdParty/GCC/RP2040")
 

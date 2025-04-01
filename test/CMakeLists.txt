@@ -28,7 +28,7 @@ include(${PROJECT_DIR}/project.cmake)
 
 # Set program name and version for picotool
 pico_set_program_name(${PROJECT_NAME} "${PROJECT_NAME}")
-pico_set_program_version(${PROJECT_NAME} "0.1")
+pico_set_program_version(${PROJECT_NAME} "${PROJECT_VER}")
 
 # Enable/disable output over UART/USB (1 - enables, 0 - disables)
 pico_enable_stdio_uart(${PROJECT_NAME} ${STDIO_UART})
