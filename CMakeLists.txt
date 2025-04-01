@@ -16,12 +16,12 @@ endif()
 # ====================================================================================
 
 # Set program name and it's location
-set(PROJECT_NAME TestTemplate)
+set(PROJECT_NAME Test)
 set(PROJECT_DIR "${CMAKE_SOURCE_DIR}/test")
 set(PROJECT_VER "0.1")
 
 # Build with libraries if not 'false'
-set(INCLUDE_FREERTOS false)
+set(INCLUDE_FREERTOS true)
 set(INCLUDE_FAT false)
 
 # Enable/disable output over UART/USB (1 - enables, 0 - disables)
@@ -48,14 +48,16 @@ set(FREERTOS_FAT_LIB FreeRTOS-FAT)
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
 
+project(${PROJECT_NAME} C CXX ASM)
+
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
 # Get libs sources if include variable(s) is not 'false'
 if (NOT ${INCLUDE_FREERTOS} MATCHES false)
 	FetchContent_Declare(FreeRTOS_Kernel
-	  	GIT_REPOSITORY https://github.com/FreeRTOS/FreeRTOS-Kernel.git
-	  	GIT_TAG        V11.1.0 # Note: Best practice to use specific git-hash or tagged version
+	  	GIT_REPOSITORY https://github.com/raspberrypi/FreeRTOS-Kernel.git
+	  	GIT_TAG        main
 	)
 
 	message("Fetching FreeRTOS-Kernel")
@@ -68,7 +70,7 @@ if (NOT ${INCLUDE_FREERTOS} MATCHES false)
 	if (NOT ${INCLUDE_FAT} MATCHES false)
 		FetchContent_Declare(FreeRTOS_FAT
 			GIT_REPOSITORY https://github.com/FreeRTOS/Lab-Project-FreeRTOS-FAT.git
-			GIT_TAG        main # Note: Best practice to use specific git-hash or tagged version
+			GIT_TAG        main
 		)
 
 		message("Fetching FreeRTOS-FAT")
@@ -95,7 +97,5 @@ if (NOT ${INCLUDE_FREERTOS} MATCHES false)
 else()
 	message("Building Pico Project \"${PROJECT_NAME}\"") 
 endif()
-
-project(${PROJECT_NAME} C CXX ASM)
 
 add_subdirectory(${PROJECT_DIR})

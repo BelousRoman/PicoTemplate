@@ -106,13 +106,12 @@ void led_task(void *params)
 	int rc = pico_led_init();
     hard_assert(rc == PICO_OK);
 
-    for(int i = 0; i < 5; ++i)
+    while(1)
     {
         pico_set_led(true);
         vTaskDelay(LED_DELAY_MS);
         pico_set_led(false);
         vTaskDelay(LED_DELAY_MS);
-        printf("%s - %d\n", __func__, i+1);
     }
 
     vTaskDelete(NULL);
