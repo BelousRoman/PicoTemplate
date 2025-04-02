@@ -49,9 +49,9 @@
 #define configMAX_PRIORITIES                       5U
 #define configMINIMAL_STACK_SIZE                   128U
 #define configMAX_TASK_NAME_LEN                    16U // 4
-#define configTICK_TYPE_WIDTH_IN_BITS              1 // TICK_TYPE_WIDTH_64_BITS
+#define configTICK_TYPE_WIDTH_IN_BITS              TICK_TYPE_WIDTH_32_BITS // TICK_TYPE_WIDTH_64_BITS
 #define configIDLE_SHOULD_YIELD                    1
-#define configTASK_NOTIFICATION_ARRAY_ENTRIES      1U
+#define configTASK_NOTIFICATION_ARRAY_ENTRIES      3U
 #define configQUEUE_REGISTRY_SIZE                  10U // 0U
 #define configENABLE_BACKWARD_COMPATIBILITY        1
 #define configNUM_THREAD_LOCAL_STORAGE_POINTERS    5 // 0
@@ -104,17 +104,22 @@
 #define configGENERATE_RUN_TIME_STATS           0
 #define configUSE_TRACE_FACILITY                0
 #define configUSE_STATS_FORMATTING_FUNCTIONS    0
-#define configKERNEL_PROVIDED_STATIC_MEMORY     0 // 1
+#define configKERNEL_PROVIDED_STATIC_MEMORY     0
 
-// #if FREE_RTOS_KERNEL_SMP // set by the RP2040 SMP port of FreeRTOS
-// /* SMP port only */
-// #define configNUMBER_OF_CORES                   2
-// #define configNUM_CORES                         configNUMBER_OF_CORES
-// #define configTICK_CORE                         0
-// #define configRUN_MULTIPLE_PRIORITIES           1
-// #define configUSE_CORE_AFFINITY                 1
-// #define configUSE_PASSIVE_IDLE_HOOK             0
-// #endif
+#if FREE_RTOS_KERNEL_SMP // set by the RP2040 SMP port of FreeRTOS
+/* SMP port only */
+#define configNUMBER_OF_CORES                   1
+#define configNUM_CORES                         configNUMBER_OF_CORES
+#define configTICK_CORE                         0
+#define configRUN_MULTIPLE_PRIORITIES           1
+
+#if (configNUMBER_OF_CORES == 1)
+#define configUSE_CORE_AFFINITY                 0
+#else
+#define configUSE_CORE_AFFINITY                 1
+#endif
+#define configUSE_PASSIVE_IDLE_HOOK             0
+#endif
 
 /* RP2040 specific */
 #define configSUPPORT_PICO_SYNC_INTEROP         1

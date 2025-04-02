@@ -22,7 +22,7 @@ set(PROJECT_VER "0.1")
 
 # Build with libraries if not 'false'
 set(INCLUDE_FREERTOS true)
-set(INCLUDE_FAT false)
+set(INCLUDE_FAT true)
 
 # Enable/disable output over UART/USB (1 - enables, 0 - disables)
 set(STDIO_UART 1)
