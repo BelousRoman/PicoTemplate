@@ -8,13 +8,13 @@ add_executable(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME} PRIVATE
 	${CMAKE_CURRENT_LIST_DIR}
-	${FREERTOS_CFG_PATH}
-	${FREERTOS_FAT_CFG_PATH}
+	${PROJECT_DIR}/${FREERTOS_CFG_PATH}
+	${PROJECT_DIR}/${FREERTOS_FAT_CFG_PATH}
 )
 
 if (PICO_CYW43_SUPPORTED)
 	target_include_directories(${PROJECT_NAME} PRIVATE
-		${LWIP_CFG_PATH}
+		${PROJECT_DIR}/${LWIP_CFG_PATH}
 	)
 endif()
 

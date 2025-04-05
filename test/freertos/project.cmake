@@ -11,12 +11,12 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 # Include config files for FreeRTOS
 target_include_directories(${PROJECT_NAME} PRIVATE
-    ${FREERTOS_CFG_PATH}
+    ${PROJECT_DIR}/${FREERTOS_CFG_PATH}
 )
 	
 if (PICO_CYW43_SUPPORTED)
 	target_include_directories(${PROJECT_NAME} PRIVATE
-        ${LWIP_CFG_PATH}
+        ${PROJECT_DIR}/${LWIP_CFG_PATH}
 	)
 endif()
 

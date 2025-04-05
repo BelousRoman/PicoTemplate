@@ -1,27 +1,23 @@
 cmake_minimum_required(VERSION 3.13)
 
-if (NOT ${INCLUDE_FREERTOS} MATCHES false)
-	if (NOT ${INCLUDE_FAT} MATCHES false)
+if (NOT ${INCLUDE_LVGL} MATCHES false)
+    set(PROJECT_DIR "${PROJECT_DIR}/lvgl")
+
+    add_compile_definitions(TEMPLATE_STR="Raspberry Pi Pico Template Project with LVGL")
+elseif (NOT ${INCLUDE_FREERTOS} MATCHES false)
+    if (NOT ${INCLUDE_FAT} MATCHES false)
         set(PROJECT_DIR "${PROJECT_DIR}/freertos-fat")
 
-        set(FREERTOS_FAT_CFG_PATH ${PROJECT_DIR}/config/FreeRTOS-FAT)
-
         add_compile_definitions(TEMPLATE_STR="Raspberry Pi Pico Template Project with FreeRTOS FAT")
-	else()
+    else()
         set(PROJECT_DIR "${PROJECT_DIR}/freertos")
 
         add_compile_definitions(TEMPLATE_STR="Raspberry Pi Pico Template Project with FreeRTOS")
-	endif()
-
-    set(FREERTOS_CFG_PATH ${PROJECT_DIR}/config/FreeRTOS-Kernel)
+    endif()
 else()
-    set(PROJECT_DIR "${PROJECT_DIR}/standart")
+        set(PROJECT_DIR "${PROJECT_DIR}/standart")
 
-    add_compile_definitions(TEMPLATE_STR="Raspberry Pi Pico Template Project")
-endif()
-
-if (PICO_CYW43_SUPPORTED)
-    set(LWIP_CFG_PATH ${PROJECT_DIR}/config/lwip)
+        add_compile_definitions(TEMPLATE_STR="Raspberry Pi Pico Template Project")
 endif()
 
 include(${PROJECT_DIR}/project.cmake)
