@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 
+include(${CMAKE_CURRENT_LIST_DIR}/msp3223/display.cmake)
+
 # Add headers and sources
 if (NOT ${INCLUDE_FREERTOS} MATCHES false AND NOT ${INCLUDE_FAT} MATCHES false)
 	add_executable(${PROJECT_NAME}
@@ -41,6 +43,7 @@ target_link_libraries(${PROJECT_NAME}
 	hardware_adc
 	pico_time
 	hardware_spi
+	${DISPLAY_LIB}
 	${LVGL_LIB}
 )
 
