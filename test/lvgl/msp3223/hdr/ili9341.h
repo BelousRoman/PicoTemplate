@@ -19,6 +19,10 @@
 
 #include "msp3223_utils.h"
 
+#include "hardware/pio.h"
+#include "spi.pio.h"
+#include "pio_spi.h"
+
 #define DISPLAY_DIM_A                           320
 #define DISPLAY_DIM_B                           240
 

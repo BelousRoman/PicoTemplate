@@ -88,57 +88,56 @@ void ft6336_read_one_touch(uint16_t *x1, uint16_t *y1)
     {
     case TOP_LEFT_PORTRAIT:
     {
-        // Do nothing
+        uint16_t tmp = *x1;
+        *x1 = *y1;
+        *y1 = tmp;
     }
         break;
     case TOP_LEFT_LANDSCAPE:
     {
-        uint16_t tmp = *x1;
-        *x1 = *y1;
-        *y1 = tmp;
+        // Do nothing
     }
         break;
     case TOP_RIGHT_PORTRAIT:
     {
-        *x1 = abs(_display->width - *x1);
+        uint16_t tmp = *x1;
+        *x1 = abs(_display->width - *y1);
+        *y1 = tmp;
     }
         break;
     case TOP_RIGHT_LANDSCAPE:
     {
-        uint16_t tmp = *x1;
-        *x1 = *y1;
-        *y1 = tmp;
-
         *y1 = abs(_display->height - *y1);
     }
         break;
     case BOTTOM_LEFT_PORTRAIT:
     {
+        uint16_t tmp = *x1;
+        *x1 = *y1;
+        *y1 = tmp;
+
         *y1 = abs(_display->height - *y1);
     }
         break;
     case BOTTOM_LEFT_LANDSCAPE:
     {
-        uint16_t tmp = *x1;
-        *x1 = *y1;
-        *y1 = tmp;
-
-        *y1 = abs(_display->width - *y1);
+        *x1 = abs(_display->width - *x1);
     }
         break;
     case BOTTOM_RIGHT_PORTRAIT:
     {
+        uint16_t tmp = *x1;
+        *x1 = *y1;
+        *y1 = tmp;
+
         *x1 = abs(_display->width - *x1);
         *y1 = abs(_display->height - *y1);
     }
         break;
     case BOTTOM_RIGHT_LANDSCAPE:
     {
-        uint16_t tmp = *x1;
-        *x1 = *y1;
-        *y1 = tmp;
-
         *x1 = abs(_display->width - *x1);
+        *y1 = abs(_display->height - *y1);
     }
         break;
     default:

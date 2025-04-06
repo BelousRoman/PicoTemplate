@@ -3,8 +3,12 @@
 
 #include "hardware/spi.h"
 #include "hardware/i2c.h"
+#include "hardware/pio.h"
+
+#include "spi.pio.h"
 
 #include "msp3223_utils.h"
+#include "pio_spi.h"
 #include "ili9341.h"
 #include "ft6336u.h"
 

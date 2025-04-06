@@ -45,6 +45,7 @@ target_link_libraries(${PROJECT_NAME}
 	hardware_spi
 	${DISPLAY_LIB}
 	${LVGL_LIB}
+	# lvgl_demos
 )
 
 if (NOT ${INCLUDE_FREERTOS} MATCHES false)

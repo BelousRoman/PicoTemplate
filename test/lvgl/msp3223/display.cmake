@@ -10,6 +10,7 @@ target_sources(${DISPLAY_LIB} PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/src/display.c
     ${CMAKE_CURRENT_LIST_DIR}/src/ili9341.c
     ${CMAKE_CURRENT_LIST_DIR}/src/ft6336u.c
+	${CMAKE_CURRENT_LIST_DIR}/src/pio_spi.c
 )
 
 target_include_directories(${DISPLAY_LIB} PUBLIC
@@ -30,9 +31,12 @@ endif()
 
 target_link_libraries(${DISPLAY_LIB}
 	pico_stdlib
+	hardware_gpio
     hardware_spi
     hardware_pwm
     hardware_i2c
+	# hardware_dma
+	hardware_pio
 )
 
 if (NOT ${INCLUDE_FREERTOS} MATCHES false)
@@ -52,3 +56,5 @@ if (PICO_CYW43_SUPPORTED)
 		)
 	endif()
 endif()
+
+pico_generate_pio_header(${DISPLAY_LIB} ${CMAKE_CURRENT_LIST_DIR}/spi.pio)

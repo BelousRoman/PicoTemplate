@@ -22,8 +22,12 @@
 #include "my_include.h"
 #endif
 
-#define LV_CONF_SUPPRESS_DEFINE_CHECK 1
-#define LV_COLOR_16_SWAP 1
+// #define LV_CONF_SUPPRESS_DEFINE_CHECK 1
+// #define LV_COLOR_16_SWAP 1
+// #define LV_USE_DEV_VERSION 1
+
+// #define LV_USE_BTN 1
+// #define LV_USE_ANIMATION 1
 
 /*====================
    COLOR SETTINGS
@@ -56,7 +60,7 @@
 
 #if LV_USE_STDLIB_MALLOC == LV_STDLIB_BUILTIN
     /*Size of the memory available for `lv_malloc()` in bytes (>= 2kB)*/
-    #define LV_MEM_SIZE (64 * 1024U)          /*[bytes]*/
+    #define LV_MEM_SIZE (48 * 1024U)          /*[bytes]*/
 
     /*Size of the memory expand for `lv_malloc()` in bytes*/
     #define LV_MEM_POOL_EXPAND_SIZE 0

@@ -3,11 +3,15 @@
 
 #include "hardware/spi.h"
 #include "hardware/i2c.h"
+#include "hardware/pio.h"
+
+#include "spi.pio.h"
+#include "pio_spi.h"
 
 #define SPI_INST        spi0        /* default SPI instance used */
 #define I2C_INST        i2c0        /* default SPI instance used */
 
-#define SPI_FREQ        90000000    /* In HZ */
+#define SPI_FREQ        30000000    /* In HZ */
 #define PWM_FREQ        1000        /* In HZ */
 #define PWM_DUTY        50          /* In % */
 
@@ -41,18 +45,22 @@
 #define RS_DATA         1
 
 enum display_orientation {
-    TOP_LEFT_PORTRAIT = 1,
-    TOP_LEFT_LANDSCAPE,
-    TOP_RIGHT_PORTRAIT,
-    TOP_RIGHT_LANDSCAPE,
-    BOTTOM_LEFT_PORTRAIT,
-    BOTTOM_LEFT_LANDSCAPE,
-    BOTTOM_RIGHT_PORTRAIT,
-    BOTTOM_RIGHT_LANDSCAPE
+                    TOP_LEFT_PORTRAIT = 1,
+                    TOP_LEFT_LANDSCAPE,
+                    TOP_RIGHT_PORTRAIT,
+                    TOP_RIGHT_LANDSCAPE,
+                    BOTTOM_LEFT_PORTRAIT,
+                    BOTTOM_LEFT_LANDSCAPE,
+                    BOTTOM_RIGHT_PORTRAIT,
+                    BOTTOM_RIGHT_LANDSCAPE
 };
 
 struct MSP3223 {
+#ifdef _PIO_SPI_H
+    pio_spi_inst_t spi;
+#else
     spi_inst_t *spi;
+#endif
     uint32_t spi_freq;
     uint32_t pwm_freq;
     uint8_t pwm_duty;

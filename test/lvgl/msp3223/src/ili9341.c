@@ -1,5 +1,8 @@
 #include "ili9341.h"
 
+#ifdef _PIO_SPI_H
+#endif
+
 static struct MSP3223 *_display;
 
 unsigned int pwm_slice;
@@ -30,8 +33,8 @@ bool ili9341_init(struct MSP3223 *display) {
 	// set frequency
 	// determine top given Hz - assumes free-running counter rather than phase-correct
 	uint32_t sys_freq = clock_get_hz(clk_sys); // typically 125'000'000 Hz
-	float divider = (sys_freq / 1000000);  // let's arbitrarily choose to run pwm clock at 1MHz
-	pwm_set_clkdiv(pwm_slice, divider); // pwm clock should now be running at 1MHz
+	float clkdiv = (sys_freq / 1000000);  // let's arbitrarily choose to run pwm clock at 1MHz
+	pwm_set_clkdiv(pwm_slice, clkdiv); // pwm clock should now be running at 1MHz
 	uint32_t top = (1000000/pwm_freq - 1); // TOP is u16 has a max of 65535, being 65536 cycles
 	pwm_set_wrap(pwm_slice, top);
 
@@ -41,14 +44,32 @@ bool ili9341_init(struct MSP3223 *display) {
 	
 	pwm_set_enabled(pwm_slice, true); // Enable PWM
 
-    spi_init(_display->spi, SPI_FREQ);
-    _display->spi_freq = spi_set_baudrate(_display->spi, SPI_FREQ);
+#ifdef _PIO_SPI_H
+    // sys_freq = clock_get_hz(clk_sys); // typically 125'000'000 Hz
+    clkdiv = (sys_freq / _display->spi_freq);  // let's arbitrarily choose to run pwm clock at 1MHz
+    uint offset = pio_add_program(_display->spi.pio, &spi_cpha0_program);
+
+    pio_spi_init(   _display->spi.pio,
+                    _display->spi.sm, 
+                    offset,
+                    8,       // 8 bits per SPI frame
+                    clkdiv,  // 1 MHz @ 125 clk_sys
+                    false,   // CPHA = 0
+                    false,   // CPOL = 0
+                    _display->spi_sck,
+                    _display->spi_tx,
+                    _display->spi_rx
+    );
+#else
+    spi_init(_display->spi, _display->spi_freq);
+    _display->spi_freq = spi_set_baudrate(_display->spi, _display->spi_freq);
     // spi_set_format(spi, 8, SPI_CPOL_0, SPI_CPHA_0, SPI_MSB_FIRST);
 
     // Assign SPI functions to the default SPI pins
     gpio_set_function (_display->spi_sck, GPIO_FUNC_SPI);
     gpio_set_function (_display->spi_tx, GPIO_FUNC_SPI);
     gpio_set_function (_display->spi_rx, GPIO_FUNC_SPI);
+#endif
 
     gpio_init(_display->lcd_cs);
     gpio_set_dir(_display->lcd_cs, GPIO_OUT);
@@ -217,7 +238,11 @@ void ili9341_send_command(uint8_t command)
     gpio_put(_display->lcd_rs, RS_COMMAND);
     gpio_put(_display->lcd_cs, CS_ACTIVE);
 
+#ifdef _PIO_SPI_H
+    pio_spi_write8_blocking(&_display->spi, &command, 1);
+#else
     spi_write_blocking(_display->spi, &command, 1);
+#endif
 
     gpio_put(_display->lcd_cs, CS_PASSIVE);
 }
@@ -227,11 +252,19 @@ void ili9341_send_command_w_data(uint8_t command, uint8_t *data, int len)
     gpio_put(_display->lcd_rs, RS_COMMAND);
     gpio_put(_display->lcd_cs, CS_ACTIVE);
 
+#ifdef _PIO_SPI_H
+    pio_spi_write8_blocking(&_display->spi, &command, 1);
+#else
     spi_write_blocking(_display->spi, &command, 1);
+#endif
 
     gpio_put(_display->lcd_rs, RS_DATA);
 
+#ifdef _PIO_SPI_H
+    pio_spi_write8_blocking(&_display->spi, data, len);
+#else
     spi_write_blocking(_display->spi, data, len);
+#endif
 
     gpio_put(_display->lcd_cs, CS_PASSIVE);
 }
@@ -241,7 +274,11 @@ void ili9341_send_data(uint8_t *data, int len)
     gpio_put(_display->lcd_rs, RS_DATA);
     gpio_put(_display->lcd_cs, CS_ACTIVE);
 
+#ifdef _PIO_SPI_H
+    pio_spi_write8_blocking(&_display->spi, data, len);
+#else
     spi_write_blocking(_display->spi, data, len);
+#endif
 
     gpio_put(_display->lcd_cs, CS_PASSIVE);
 }

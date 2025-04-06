@@ -22,6 +22,10 @@
 #endif
 
 #include "lvgl.h"
+
+// #include "demos/stress/lv_demo_stress.h"
+// #include "demos/lv_demos.h"
+// #include "lv_demos.h"
 #include "display.h"
 
 #ifndef TEMPLATE_STR
@@ -29,7 +33,12 @@
 #endif // TEMPLATE_STR
 
 struct MSP3223 msp3223 = {
+#ifdef _PIO_SPI_H
+	.spi.pio = pio0,
+	.spi.sm = 0,
+#else
 	.spi = SPI_INST,
+#endif
 	.spi_freq = SPI_FREQ,
 	.pwm_freq = PWM_FREQ,
 	.pwm_duty = PWM_DUTY,
@@ -47,18 +56,30 @@ struct MSP3223 msp3223 = {
 	.ctp_int = CTP_INT,
 	.ctp_sda = CTP_SDA,
 	.ctp_scl = CTP_SCL,
-	.orientation = BOTTOM_RIGHT_PORTRAIT //  BOTTOM_LEFT_LANDSCAPE
+	.orientation = BOTTOM_LEFT_LANDSCAPE
 };
 
 lv_draw_buf_t *buf1 = NULL;
 lv_draw_buf_t *buf2 = NULL;
+
+lv_obj_t *label1 = NULL;
+
+static void slider_event_cb(lv_event_t * e)
+{
+    lv_obj_t * slider = lv_event_get_target(e);
+	lv_obj_t *label = lv_event_get_user_data(e);
+
+    /*Refresh the text*/
+    lv_label_set_text_fmt(label, "%"LV_PRId32, lv_slider_get_value(slider));
+    lv_obj_align_to(label, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);    /*Align top of the slider*/
+}
 
 void flush_screen_cb(lv_display_t *display, const lv_area_t *area, uint8_t *buf)
 {
 	ili9341_set_window(area->x1, area->y1, area->x2, area->y2);
 
 	// ideally use by hardware
-	// lv_draw_sw_rgb565_swap(buf, DISPLAY_DIM_A * DISPLAY_DIM_B / 10);
+	lv_draw_sw_rgb565_swap(buf, DISPLAY_DIM_A * DISPLAY_DIM_B / 10);
 	uint32_t len = (area->x2 - area->x1 + 1) * (area->y2 - area->y1 + 1) * 2;
 
 	ili9341_send_command_w_data(MEM_WRITE, buf, len);
@@ -80,7 +101,10 @@ void touch_read(lv_indev_t *indev, lv_indev_data_t *data)
 		enable_interrupts();
 
 		data->state = LV_INDEV_STATE_PRESSED;
-		printf("%s(1) - %d:%d\n", __func__, data->point.x, data->point.y);
+		// printf("%s(1) - %d:%d\n", __func__, data->point.x, data->point.y);
+
+		lv_label_set_text_fmt(label1, "%d;%d (x;y)", data->point.x, data->point.y);
+    	lv_obj_align(label1, LV_ALIGN_TOP_MID, 0, 0);
 	}
 	else if (true == msp3223.tp_touch2) {
 		disable_interrupts();
@@ -93,7 +117,10 @@ void touch_read(lv_indev_t *indev, lv_indev_data_t *data)
 		enable_interrupts();
 
 		data->state = LV_INDEV_STATE_PRESSED;
-		printf("%s(2) - %d:%d\n", __func__, data->point.x, data->point.y);
+		// printf("%s(2) - %d:%d\n", __func__, data->point.x, data->point.y);
+
+		lv_label_set_text_fmt(label1, "%d;%d (x;y)", data->point.x, data->point.y);
+    	lv_obj_align(label1, LV_ALIGN_TOP_MID, 0, 0);
 	}
 	else {
 		data->state = LV_INDEV_STATE_RELEASED;
@@ -102,18 +129,26 @@ void touch_read(lv_indev_t *indev, lv_indev_data_t *data)
 
 void init_gui() {
 	lv_obj_t *scr = lv_scr_act();  // Get the current screen
-	lv_obj_set_style_bg_color(scr, lv_color_make(0xFF, 0xFF, 0xFF), LV_PART_MAIN); // Set to red
-	lv_obj_set_style_bg_opa(scr, LV_OPA_COVER, LV_PART_MAIN); // Make it fully REDopaque
+	lv_obj_set_style_bg_color(scr, lv_color_make(0xFF, 0xFF, 0xFF), LV_PART_MAIN);
+	lv_obj_set_style_bg_opa(scr, LV_OPA_COVER, LV_PART_MAIN); // Make it fully opaque
 
-	// Create a button
-    lv_obj_t *btn1 = lv_btn_create(scr);  // Create the first button on the screen
-    lv_obj_set_size(btn1, 100, 25); // Set button size (width: 120px, height: 50px)
-    lv_obj_align(btn1, LV_ALIGN_CENTER, 0, 0); // Align the first button to the top-middle of the screen
+    lv_obj_t *btn1 = lv_btn_create(scr);
+    lv_obj_set_size(btn1, 200, 50);
+    lv_obj_align(btn1, LV_ALIGN_CENTER, 0, 0);
 
-    // Create label on the button
-    lv_obj_t *label1 = lv_label_create(btn1);  // Create label on the first button
-    lv_label_set_text(label1, "Button 1");  // Set label text
-    lv_obj_align(label1, LV_ALIGN_CENTER, 0, 0); // Align label to the center of the button
+	label1 = lv_label_create(scr);
+    lv_label_set_text(label1, "0:0");
+    lv_obj_align(label1, LV_ALIGN_TOP_MID, 0, 0);
+
+	lv_obj_t * slider = lv_slider_create(scr);
+    lv_obj_set_width(slider, 200);
+	lv_obj_align_to(slider, btn1, LV_ALIGN_OUT_BOTTOM_MID, 0, 20);
+
+    lv_obj_t *label2 = lv_label_create(scr);
+    lv_label_set_text(label2, "0");
+    lv_obj_align_to(label2, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
+
+    lv_obj_add_event_cb(slider, slider_event_cb, LV_EVENT_VALUE_CHANGED, label2);     /*Assign an event function*/
 }
 
 void lvgl_task(void *args) 
@@ -127,7 +162,7 @@ void lvgl_task(void *args)
 	/* Create a display */
 	lv_display_t *display = lv_display_create(msp3223.width, msp3223.height);
 	// lv_display_set_color_format(display, LV_COLOR_FORMAT_RGB565);
-	// 	lv_disp_set_default(display);
+	// lv_disp_set_default(display);
 
     lv_display_set_flush_cb(display, flush_screen_cb);
 
@@ -154,9 +189,10 @@ void lvgl_task(void *args)
 	{
 		puts("Failed to create Input Device!");
 	}
-    
 
-    lv_screen_load(screen);
+	lv_obj_t * cursor_obj = lv_image_create(screen);  /* Create image Widget for cursor. */
+	lv_image_set_src(cursor_obj, LV_SYMBOL_BULLET);             /* Set image source. */
+	lv_indev_set_cursor(indev, cursor_obj);
 
 	init_gui();
 
