@@ -13,9 +13,8 @@ bool ft6336_init(struct MSP3223 *display)
     gpio_put(_display->ctp_rst, RST_IDLE);
 
     gpio_init(_display->ctp_int);
-    // gpio_pull_up(_display->ctp_int);
-    gpio_set_pulls(_display->ctp_int, false, true);
-    // gpio_set_irq_enabled_with_callback(_display->ctp_int, GPIO_IRQ_LEVEL_LOW, true, gpio_callback);
+    gpio_pull_up(_display->ctp_int);
+    gpio_set_irq_enabled_with_callback(_display->ctp_int, GPIO_IRQ_EDGE_RISE, true, gpio_callback); // GPIO_IRQ_LEVEL_LOW
 
     _display->i2c_freq = i2c_init(_display->i2c, display->i2c_freq);
     // i2c_set_slave_mode(i2c, false, 0);
@@ -32,42 +31,49 @@ bool ft6336_init(struct MSP3223 *display)
 
     ft6336_send_register_w_data(FT6336U_ID_G_MODE, "\x01", 1); // {0x01}
 
-    display->tp_x1 = 0;
-    display->tp_y1 = 0;
-    display->tp_x2 = 0;
-    display->tp_y2 = 0;
+    _display->tp_x1 = 0;
+    _display->tp_y1 = 0;
+    _display->tp_x2 = 0;
+    _display->tp_y2 = 0;
+
+    _display->tp_touch1 = false;
+    _display->tp_touch2 = false;
 
     return true;
 }
 
 void gpio_callback(uint gpio, __unused uint32_t events)
 {
-    puts("GPIO Callback");
-    uint8_t touches = ft6336_read_register(FT6336U_TD_STATUS);
-
-    switch (touches)
+    if (gpio == _display->ctp_int)
     {
-    case 1:
-    {
-        ft6336_read_one_touch(&_display->tp_x1, &_display->tp_y1);
+        static uint8_t touches;
+        touches = ft6336_read_register(FT6336U_TD_STATUS);
 
-        printf("Read 1 touch at %d:%d\n", _display->tp_x1, _display->tp_y1);
-    }
-        break;
-    case 2:
-    {
-        _display->tp_x1 = ((ft6336_read_register(FT6336U_P1_XH) & 0b00111111) << 8) | ft6336_read_register(FT6336U_P1_XL);
-        _display->tp_y1 = ((ft6336_read_register(FT6336U_P1_YH) & 0b00001111) << 8) | ft6336_read_register(FT6336U_P1_YL);
-        
-        _display->tp_x2 = ((ft6336_read_register(FT6336U_P2_XH) & 0b00111111) << 8) | ft6336_read_register(FT6336U_P2_XL);
-        _display->tp_y2 = ((ft6336_read_register(FT6336U_P2_YH) & 0b00001111) << 8) | ft6336_read_register(FT6336U_P2_YL);
+        switch (touches)
+        {
+        case 1:
+        {
+            ft6336_read_one_touch(&_display->tp_x1, &_display->tp_y1);
 
-        printf("Read 2 touches at %d:%d and %d:%d\n", _display->tp_x1, _display->tp_y1, _display->tp_x2, _display->tp_y2);
-    }
-        break;
-    default:
-        puts("Read no touches :(");
-        break;
+            // printf("Read 1 touch at %d:%d\n", _display->tp_x1, _display->tp_y1);
+            
+            _display->tp_touch1 = true;
+        }
+            break;
+        case 2:
+        {
+            ft6336_read_two_touches(&_display->tp_x1, &_display->tp_y1, &_display->tp_x2, &_display->tp_y2);
+
+            // printf("Read 2 touches at %d:%d and %d:%d\n", _display->tp_x1, _display->tp_y1, _display->tp_x2, _display->tp_y2);
+
+            _display->tp_touch1 = true;
+            _display->tp_touch2 = true;
+        }
+            break;
+        default:
+            // printf("Read touches : %d\n", touches);
+            break;
+        }
     }
 
     return;
@@ -117,7 +123,7 @@ void ft6336_read_one_touch(uint16_t *x1, uint16_t *y1)
         *x1 = *y1;
         *y1 = tmp;
 
-        *y1 = abs(_display->height - *y1);
+        *y1 = abs(_display->width - *y1);
     }
         break;
     case BOTTOM_RIGHT_PORTRAIT:

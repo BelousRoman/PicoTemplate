@@ -41,7 +41,7 @@
 #define RS_DATA         1
 
 enum display_orientation {
-    TOP_LEFT_PORTRAIT = 0,
+    TOP_LEFT_PORTRAIT = 1,
     TOP_LEFT_LANDSCAPE,
     TOP_RIGHT_PORTRAIT,
     TOP_RIGHT_LANDSCAPE,
@@ -77,6 +77,8 @@ struct MSP3223 {
     uint16_t tp_y1;
     uint16_t tp_x2;
     uint16_t tp_y2;
+    bool tp_touch1;
+    bool tp_touch2;
 };
 
 #endif /* _MSP3223_PINOUT_H */

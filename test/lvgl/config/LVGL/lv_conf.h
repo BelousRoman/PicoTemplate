@@ -23,6 +23,7 @@
 #endif
 
 #define LV_CONF_SUPPRESS_DEFINE_CHECK 1
+#define LV_COLOR_16_SWAP 1
 
 /*====================
    COLOR SETTINGS
@@ -93,7 +94,11 @@
  * - LV_OS_MQX
  * - LV_OS_CUSTOM */
 #ifndef LV_USE_OS
-    #define LV_USE_OS   LV_OS_NONE
+    #ifdef INCLUDE_FREERTOS
+        #define LV_USE_OS   LV_OS_FREERTOS
+    #else
+        #define LV_USE_OS   LV_OS_NONE
+    #endif
 #endif
 
 #if LV_USE_OS == LV_OS_CUSTOM
