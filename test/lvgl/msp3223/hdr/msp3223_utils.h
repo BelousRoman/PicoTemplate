@@ -1,12 +1,23 @@
 #ifndef _MSP3223_PINOUT_H
 #define _MSP3223_PINOUT_H
 
+#include "pico/mutex.h"
+
 #include "hardware/spi.h"
 #include "hardware/i2c.h"
 #include "hardware/pio.h"
 
 #include "spi.pio.h"
 #include "pio_spi.h"
+
+#ifdef PICO_FREERTOS_FAT_BUILD
+    #include "FreeRTOS.h"
+    #include "queue.h"
+#endif
+
+#ifdef PICO_LVGL_BUILD
+    #include "lvgl.h"
+#endif
 
 #define SPI_INST        spi0        /* default SPI instance used */
 #define I2C_INST        i2c0        /* default SPI instance used */
@@ -81,12 +92,12 @@ struct MSP3223 {
     uint8_t orientation;
     uint16_t width;
     uint16_t height;
+#ifndef PICO_LVGL_BUILD
     uint16_t tp_x1;
     uint16_t tp_y1;
     uint16_t tp_x2;
     uint16_t tp_y2;
-    bool tp_touch1;
-    bool tp_touch2;
+#endif
 };
 
 #endif /* _MSP3223_PINOUT_H */

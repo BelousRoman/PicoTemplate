@@ -37,6 +37,7 @@ target_link_libraries(${DISPLAY_LIB}
     hardware_i2c
 	# hardware_dma
 	hardware_pio
+	${LVGL_LIB}
 )
 
 if (NOT ${INCLUDE_FREERTOS} MATCHES false)
@@ -58,3 +59,7 @@ if (PICO_CYW43_SUPPORTED)
 endif()
 
 pico_generate_pio_header(${DISPLAY_LIB} ${CMAKE_CURRENT_LIST_DIR}/spi.pio)
+
+if (NOT ${INCLUDE_LVGL} MATCHES false)
+	add_compile_definitions(PICO_LVGL_BUILD)
+endif()

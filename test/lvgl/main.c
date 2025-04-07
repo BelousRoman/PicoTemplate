@@ -8,17 +8,18 @@
 #include "hardware/spi.h"
 
 #ifdef PICO_FREERTOS_BUILD
-#include "FreeRTOS.h"
-#include "task.h"
+	#include "FreeRTOS.h"
+	#include "task.h"
+	#include "queue.h"
 #endif
 
 #ifdef PICO_FREERTOS_FAT_BUILD
-#include "ff_headers.h"
-#include "ff_sddisk.h"
-#include "ff_stdio.h"
-#include "ff_utils.h"
+	#include "ff_headers.h"
+	#include "ff_sddisk.h"
+	#include "ff_stdio.h"
+	#include "ff_utils.h"
 
-#include "hw_config.h"
+	#include "hw_config.h"
 #endif
 
 #include "lvgl.h"
@@ -90,39 +91,15 @@ void flush_screen_cb(lv_display_t *display, const lv_area_t *area, uint8_t *buf)
 
 void touch_read(lv_indev_t *indev, lv_indev_data_t *data)
 {
-	if(true == msp3223.tp_touch1) {
-		disable_interrupts();
-
-		data->point.x = msp3223.tp_x1;
-		data->point.y = msp3223.tp_y1;
-
-		msp3223.tp_touch1 = false;
-
-		enable_interrupts();
+	if (gpio_get(msp3223.ctp_int) == 0)
+	{
+		ft6336_read_one_touch((uint16_t *)&data->point.x, (uint16_t *)&data->point.y);
 
 		data->state = LV_INDEV_STATE_PRESSED;
-		// printf("%s(1) - %d:%d\n", __func__, data->point.x, data->point.y);
 
 		lv_label_set_text_fmt(label1, "%d;%d (x;y)", data->point.x, data->point.y);
     	lv_obj_align(label1, LV_ALIGN_TOP_MID, 0, 0);
-	}
-	else if (true == msp3223.tp_touch2) {
-		disable_interrupts();
-
-		data->point.x = msp3223.tp_x2;
-		data->point.y = msp3223.tp_y2;
-
-		msp3223.tp_touch2 = false;
-
-		enable_interrupts();
-
-		data->state = LV_INDEV_STATE_PRESSED;
-		// printf("%s(2) - %d:%d\n", __func__, data->point.x, data->point.y);
-
-		lv_label_set_text_fmt(label1, "%d;%d (x;y)", data->point.x, data->point.y);
-    	lv_obj_align(label1, LV_ALIGN_TOP_MID, 0, 0);
-	}
-	else {
+	} else {
 		data->state = LV_INDEV_STATE_RELEASED;
 	}
 }
@@ -176,7 +153,6 @@ void lvgl_task(void *args)
 
 	/* Create input device connected to Default Display. */
 	lv_indev_t *indev;
-
 	indev = lv_indev_create();
 	if (indev != NULL)
 	{
@@ -214,10 +190,8 @@ int main()
 	reset_usb_boot(0, 0);
 #endif
 
-    // Create the Hello World task
     xTaskCreate(lvgl_task, "lvgl_task", 16384, NULL, 1, NULL);    
 
-    // Start FreeRTOS scheduler
     vTaskStartScheduler();
 
 	panic("RTOS kernel is not running!"); // we shouldn't get here
